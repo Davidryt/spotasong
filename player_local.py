@@ -25,12 +25,14 @@ def toggle_play_pause(channel):
         pygame.mixer.music.unpause()
 
 def volume_up(channel):
+    print("Volume goes UP")
     current_volume = pygame.mixer.music.get_volume()
-    pygame.mixer.music.set_volume(min(current_volume + 0.1, 1.0))
+    pygame.mixer.music.set_volume(min(current_volume + 0.2, 1.0))
 
 def volume_down(channel):
+    print("Volume goes DOWN")
     current_volume = pygame.mixer.music.get_volume()
-    pygame.mixer.music.set_volume(max(current_volume - 0.1, 0.0))
+    pygame.mixer.music.set_volume(max(current_volume - 0.2, 0.0))
 
 # Detect button presses
 GPIO.add_event_detect(pause_button_pin, GPIO.FALLING, callback=toggle_play_pause, bouncetime=200)
@@ -49,13 +51,15 @@ try:
 
         if id != lastid:
             if id == 330752882257:
-                pygame.mixer.music.load('../Music/song1.mp3')
+                pygame.mixer.music.load('Music/song1.mp3')
                 pygame.mixer.music.play()
                 
             elif id == 605630789265:
-                pygame.mixer.music.load('../Music/album1/song2.mp3')
+                pygame.mixer.music.load('Music/song2.mp3')
                 pygame.mixer.music.play()
-                
+            
+            elif (id==222668437326):
+                    exit()
             # continue adding as many "elifs" for songs/albums that you want to play
             
             sleep(2)  # Sleep to allow the music to start playing before re-enabling scanning

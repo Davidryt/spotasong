@@ -21,6 +21,7 @@ GPIO.setup(pause_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Callback functions for button presses
 def toggle_play_pause(channel):
+    print("Play/Pause")
     try:
         # Check current playback state
         playback = sp.current_playback()
@@ -77,6 +78,9 @@ while True:
                     # playing an album
                     sp.start_playback(device_id=DEVICE_ID, context_uri='spotify:album:0JGOiO34nwfUdDrD612dOp')
                     sleep(2)
+                
+                elif (id==222668437326):
+                    exit()
                 
                 # continue adding as many "elifs" for songs/albums that you want to play
             else:
