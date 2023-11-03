@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import time
 from mfrc522 import SimpleMFRC522
 import RPi.GPIO as GPIO
 import pygame  # Import pygame for playing music
@@ -6,7 +7,7 @@ from time import sleep
 
 # Initialize the mixer module
 pygame.mixer.init()
-
+running = True
 pause_button_pin = 17
 volume_up_button_pin = 27
 volume_down_button_pin = 22
@@ -18,6 +19,17 @@ GPIO.setup(volume_down_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(pause_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Callback functions for button presses
+
+def check_exit_conditions():
+    start_time = time.time()
+    while GPIO.input(volume_up_button_pin) == GPIO.LOW and GPIO.input(volume_down_button_pin) == GPIO.LOW:
+        if (time.time() - start_time) > 3:  # Check if buttons are held for more than 3 seconds
+            print("Exiting program...")
+            global running
+            running = False
+            break
+        sleep(0.1)
+
 def toggle_play_pause(channel):
     if pygame.mixer.music.get_busy():
         pygame.mixer.music.pause()
@@ -25,11 +37,13 @@ def toggle_play_pause(channel):
         pygame.mixer.music.unpause()
 
 def volume_up(channel):
+    check_exit_conditions()  # Call this function to check if both buttons are being pressed
     print("Volume goes UP")
     current_volume = pygame.mixer.music.get_volume()
     pygame.mixer.music.set_volume(min(current_volume + 0.2, 1.0))
 
 def volume_down(channel):
+    check_exit_conditions()  # Call this function to check if both buttons are being pressed
     print("Volume goes DOWN")
     current_volume = pygame.mixer.music.get_volume()
     pygame.mixer.music.set_volume(max(current_volume - 0.2, 0.0))
@@ -44,7 +58,7 @@ reader = SimpleMFRC522()
 try:
     # create an infinite while loop that will always be waiting for a new scan
     lastid = 0
-    while True:
+    while running:
         print("Waiting for record scan...")
         id, text = reader.read()
         print("Card Value is:", id)
@@ -67,7 +81,9 @@ try:
             print("Same ID, skipped")
         
         lastid = id
-
+except KeyboardInterrupt:
+    print("Program interrupted by user")
+    
 except Exception as e:
     print(e)
 
