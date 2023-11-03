@@ -9,7 +9,6 @@ from time import sleep
 # Initialize the mixer module
 pygame.mixer.init()
 running = True
-exit_event = threading.Event()
 pause_button_pin = 17
 volume_up_button_pin = 27
 volume_down_button_pin = 22
@@ -23,15 +22,20 @@ GPIO.setup(pause_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 # Callback functions for button presses
 
 def monitor_exit_button_combo():
-    while not exit_event.is_set():
+    global running
+    while running:
         if GPIO.input(volume_up_button_pin) == GPIO.LOW and GPIO.input(volume_down_button_pin) == GPIO.LOW:
             start_time = time.time()
             while GPIO.input(volume_up_button_pin) == GPIO.LOW and GPIO.input(volume_down_button_pin) == GPIO.LOW:
+                # If both buttons are held for more than 3 seconds, set running to False
                 if time.time() - start_time > 3:
                     print("Exiting program...")
-                    exit_event.set()  # Set the event to signal the main loop to exit
-                    GPIO.cleanup()  # Cleanup here to ensure it's called before exiting
-                    return  # Exit the thread
+                    running = False
+                    # Stop the music and cleanup before exiting
+                    pygame.mixer.music.stop()
+                    GPIO.cleanup()
+                    pygame.mixer.quit()
+                    return
                 time.sleep(0.1)
         time.sleep(0.1)
 
@@ -89,7 +93,7 @@ try:
         lastid = id
 except KeyboardInterrupt:
     print("Program interrupted by user")
-    exit_event.set()  # Ensure the exit event is set to stop all threads
+    running=False
 
 except Exception as e:
     print(e)
