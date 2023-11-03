@@ -72,7 +72,7 @@ try:
         print("Waiting for record scan...")
         id, text = reader.read()
         print("Card Value is:", id)
-
+        
         if id != lastid:
             if id == 330752882257:
                 pygame.mixer.music.load('Music/song1.mp3')

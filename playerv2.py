@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import threading
+import time
 from mfrc522 import SimpleMFRC522
 import RPi.GPIO as GPIO
 import spotipy
@@ -9,6 +11,7 @@ DEVICE_ID="98bb0735e28656bac098d927d410c3138a4b5bca"
 CLIENT_ID="d8279af9837543de8eb55d64f77d082f"
 CLIENT_SECRET="48b31b8a7c5e48318f0d0671d25a49db"
 
+running = True
 pause_button_pin=17
 volume_up_button_pin=27
 volume_down_button_pin=22
@@ -20,6 +23,23 @@ GPIO.setup(volume_down_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(pause_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Callback functions for button presses
+def monitor_exit_button_combo():
+    global running
+    while running:
+        if GPIO.input(volume_up_button_pin) == GPIO.LOW and GPIO.input(volume_down_button_pin) == GPIO.LOW:
+            start_time = time.time()
+            while GPIO.input(volume_up_button_pin) == GPIO.LOW and GPIO.input(volume_down_button_pin) == GPIO.LOW:
+                # If both buttons are held for more than 3 seconds, set running to False
+                if time.time() - start_time > 3:
+                    print("Exiting program...")
+                    running = False
+                    # Stop the music and cleanup before exiting
+                    sp.pause_playback(device_id=DEVICE_ID)
+                    GPIO.cleanup()
+                    return
+                time.sleep(0.1)
+        time.sleep(0.1)
+
 def toggle_play_pause(channel):
     print("Play/Pause")
     try:
@@ -49,17 +69,20 @@ GPIO.add_event_detect(volume_down_button_pin, GPIO.FALLING, callback=volume_down
 
 
 
-while True:
+while running:
     try:
+        exit_thread = threading.Thread(target=monitor_exit_button_combo)
+        exit_thread.start()
         reader=SimpleMFRC522()
         sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_ID,
                                                        client_secret=CLIENT_SECRET,
                                                        redirect_uri="http://localhost:8080",
                                                        scope="user-read-playback-state,user-modify-playback-state"))
         
+        
         # create an infinite while loop that will always be waiting for a new scan
         lastid=0
-        while True:
+        while running:
             
             print("Waiting for record scan...")
             id= reader.read()[0]
@@ -93,5 +116,8 @@ while True:
         pass
 
     finally:
-        print("Cleaning  up...")
-        GPIO.cleanup()
+        # The cleanup logic will be handled by the exit thread, but we'll include it here too, in case of other exceptions
+        if running:  # Check if the program is still running
+            print("Cleaning up...")
+            GPIO.cleanup()
+        exit_thread.join()  # Wait for the exit thread to finish if it's still running
