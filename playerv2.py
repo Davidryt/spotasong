@@ -52,11 +52,35 @@ def toggle_play_pause(channel):
     except spotipy.exceptions.SpotifyException as e:
         print("An error occurred while toggling play/pause:", e)
 
+def next_track():
+    print("Skipping to next track")
+    sp.next_track(device_id=DEVICE_ID)
+
+def previous_track():
+    print("Going back to previous track")
+    sp.previous_track(device_id=DEVICE_ID)
+
+# Modified volume control functions
 def volume_up(channel):
+    start_time = time.time()
+    while GPIO.input(channel) == GPIO.LOW:
+        if time.time() - start_time > 1:  # Adjust the time as needed
+            next_track()
+            return
+        time.sleep(0.1)
+    # If the button was not held long enough, adjust volume
     print("Volume goes UP")
     current_volume = sp.current_playback()['device']['volume_percent']
     sp.volume(min(current_volume + 10, 100), device_id=DEVICE_ID)
+
 def volume_down(channel):
+    start_time = time.time()
+    while GPIO.input(channel) == GPIO.LOW:
+        if time.time() - start_time > 1:  # Adjust the time as needed
+            previous_track()
+            return
+        time.sleep(0.1)
+    # If the button was not held long enough, adjust volume
     print("Volume goes DOWN")
     current_volume = sp.current_playback()['device']['volume_percent']
     sp.volume(max(current_volume - 10, 0), device_id=DEVICE_ID)
@@ -92,14 +116,68 @@ while running:
                 # DONT include the quotation marks around the card's ID value, just paste the number
                 if (id==330752882257):
                     sp.transfer_playback(device_id=DEVICE_ID, force_play=False)
-                    # playing a song
-                    sp.start_playback(device_id=DEVICE_ID, uris=['spotify:track:2vSLxBSZoK0eha4AuhZlXV'])
+                    # playing a lowlife
+                    sp.start_playback(device_id=DEVICE_ID, uris=['spotify:track:2kDApipZtTzjwGfKujcg2z'])
                     sleep(2)
                 
                 elif (id==605630789265):
                     sp.transfer_playback(device_id=DEVICE_ID, force_play=False)
-                    # playing an album
-                    sp.start_playback(device_id=DEVICE_ID, context_uri='spotify:album:0JGOiO34nwfUdDrD612dOp')
+                    # playing an weird!
+                    sp.start_playback(device_id=DEVICE_ID, context_uri='spotify:album:1KsMhtT6PWdFuMCiNLvWmP')
+                    sleep(2)
+                    
+                elif (id==536894535266):
+                    sp.transfer_playback(device_id=DEVICE_ID, force_play=False)
+                    # playing an happier
+                    sp.start_playback(device_id=DEVICE_ID, uris=['spotify:track:0UNDrAptMY5glGrcdr93Kx'])
+                    sleep(2)
+                    
+                elif (id==401502336567):
+                    sp.transfer_playback(device_id=DEVICE_ID, force_play=False)
+                    # playing an dear evan
+                    sp.start_playback(device_id=DEVICE_ID, context_uri='spotify:album:0LhDyJXelg31FKLW5GDcKi')
+                    sleep(2)
+                    
+                elif (id==330736105042):
+                    sp.transfer_playback(device_id=DEVICE_ID, force_play=False)
+                    # playing an fleabag
+                    sp.start_playback(device_id=DEVICE_ID, uris=['spotify:track:3TFtD8GZNw9v6vVWr3hnWy'])
+                    sleep(2)
+                    
+                elif (id==124577674754):
+                    sp.transfer_playback(device_id=DEVICE_ID, force_play=False)
+                    # playing an al filo
+                    sp.start_playback(device_id=DEVICE_ID, uris=['spotify:track:4bp2lS1LSotJkXHxngiJxn'])
+                    sleep(2)
+                    
+                elif (id==811772442274):
+                    sp.transfer_playback(device_id=DEVICE_ID, force_play=False)
+                    # playing an hamilton
+                    sp.start_playback(device_id=DEVICE_ID, context_uri='spotify:album:1kCHru7uhxBUdzkm4gzRQc')
+                    sleep(2)
+                    
+                elif (id==1017930872562):
+                    sp.transfer_playback(device_id=DEVICE_ID, force_play=False)
+                    # playing an hated
+                    sp.start_playback(device_id=DEVICE_ID, uris=['spotify:track:2NNq2V3PD8u55LqGs8ImU1'])
+                    sleep(2)
+                    
+                elif (id==880475141843):
+                    sp.transfer_playback(device_id=DEVICE_ID, force_play=False)
+                    # playing an lhaine patagonia
+                    sp.start_playback(device_id=DEVICE_ID, context_uri='spotify:album:3JjSWhes0uMj7k2QzFozgG')
+                    sleep(2)
+                    
+                elif (id==124594451969):
+                    sp.transfer_playback(device_id=DEVICE_ID, force_play=False)
+                    # playing an david
+                    sp.start_playback(device_id=DEVICE_ID, context_uri='spotify:playlist:7eZobX39lbj1jqEXOmelCK')
+                    sleep(2)
+                    
+                elif (id==222668437326):
+                    sp.transfer_playback(device_id=DEVICE_ID, force_play=False)
+                    # playing an yungblud
+                    sp.start_playback(device_id=DEVICE_ID, context_uri='spotify:album:3Hthv2JVzYaWq0TyElU5lF')
                     sleep(2)
                 
                 elif (id==222668437326):
