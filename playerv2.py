@@ -24,8 +24,10 @@ GPIO.setup(pause_button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Callback functions for button presses
 def monitor_exit_button_combo():
+    
     global running
     while running:
+        GPIO.setmode(GPIO.BCM)
         if GPIO.input(volume_up_button_pin) == GPIO.LOW and GPIO.input(volume_down_button_pin) == GPIO.LOW:
             start_time = time.time()
             while GPIO.input(volume_up_button_pin) == GPIO.LOW and GPIO.input(volume_down_button_pin) == GPIO.LOW:
